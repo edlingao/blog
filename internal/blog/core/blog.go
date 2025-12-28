@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"slices"
 
 	"github.com/edlingao/internal/pkg/parser"
 	meta "github.com/yuin/goldmark-meta"
@@ -37,12 +38,18 @@ func NewBlog(title string) *Blog {
 	}
 }
 
-func (b *Blog) SetTags(tags []string) {
-	b.tags = tags
+func (blog *Blog) SetTags(tags []string) {
+	blog.tags = tags
 }
 
-func (b *Blog) GetTags() []string {
-	return b.tags
+func (blog *Blog) GetTags() []string {
+	return blog.tags
+}
+
+func (blog *Blog) RemoveTag(tag string) {
+	blog.tags = slices.DeleteFunc(blog.tags, func(t string) bool {
+		return t == tag
+	})
 }
 
 func (blog *Blog) SetDescription(description string) {
