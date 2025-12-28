@@ -1,0 +1,15 @@
+@import "tailwindcss" source("../../");
+
+@theme {
+  --font-display: "Bebas Neue", system-ui, sans-serif;
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "Space Grotesk", system-ui, sans-serif;
+
+  --color-cosmic-purple: #6b21a8;
+  --color-electric-pink: #ec4899;
+  --color-neon-cyan: #06b6d4;
+  --color-sunset-orange: #f97316;
+  --color-midnight: #0f172a;
+  --color-stardust: #faf5ff;
+}
+

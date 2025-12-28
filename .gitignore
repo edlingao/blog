@@ -1,0 +1,13 @@
+tmp/
+bin/
+web/static/*
+!web/static/.gitkeep
+node_modules/
+.env
+.reload-trigger
+web/app/node_modules/
+*_templ.go
+
+# Deployment
+deploy/nginx/ssl/
+data/main.db
