@@ -1,0 +1,98 @@
+package auth
+
+import "github.com/edlingao/web/template/layout"
+
+type VMLogin struct {
+	Error string
+}
+
+templ LoginError(msg string) {
+	<div class="mb-6 p-4 rounded-xl bg-red-500/20 backdrop-blur border border-red-300/30 text-red-900 font-mono text-sm">
+		{ msg }
+	</div>
+}
+
+templ Login(vm VMLogin) {
+	@layout.Base(layout.BaseProps{
+		Title: "Sign In",
+	}) {
+		<div class="min-h-screen flex items-center" x-data="authForm">
+			<div class="w-full max-w-7xl mx-auto px-6 lg:px-12 flex justify-end">
+				<div class="w-full max-w-md lg:mr-[8%] relative">
+					<div class="aero-glass relative backdrop-blur-xl bg-white/20 border border-white/40 rounded-3xl p-10 shadow-2xl shadow-black/10">
+						<div class="mb-10">
+							<h1 class="font-mono text-3xl tracking-tight text-aero-deep mb-2">sign_in</h1>
+							<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
+						</div>
+						<div id="login-error">
+							if vm.Error != "" {
+								@LoginError(vm.Error)
+							}
+						</div>
+						<form
+							hx-post="/login"
+							hx-target="#login-error"
+							hx-select="#login-error"
+							hx-swap="innerHTML"
+							class="space-y-6"
+						>
+							<div class="space-y-2">
+								<label for="username" class="font-mono text-xs tracking-widest text-aero-deep/70 uppercase">username</label>
+								<input
+									type="text"
+									id="username"
+									name="username"
+									required
+									class="w-full px-5 py-4 rounded-xl bg-white/80 border border-white/60 shadow-inner shadow-black/5 font-mono text-aero-deep placeholder:text-aero-deep/30 focus:outline-none focus:ring-2 focus:ring-aero-azure/40 focus:bg-white/90 transition-all"
+									placeholder="example"
+									x-model="username"
+								/>
+							</div>
+							<div class="space-y-2">
+								<label for="password" class="font-mono text-xs tracking-widest text-aero-deep/70 uppercase">password</label>
+								<div class="relative">
+									<input
+										:type="showPassword ? 'text' : 'password'"
+										id="password"
+										name="password"
+										required
+										class="w-full px-5 py-4 pr-14 rounded-xl bg-white/80 border border-white/60 shadow-inner shadow-black/5 font-mono text-aero-deep placeholder:text-aero-deep/30 focus:outline-none focus:ring-2 focus:ring-aero-azure/40 focus:bg-white/90 transition-all"
+										placeholder="••••••••"
+										x-model="password"
+									/>
+									<button
+										type="button"
+										@click="showPassword = !showPassword"
+										class="absolute right-4 top-1/2 -translate-y-1/2 text-aero-deep/50 hover:text-aero-deep transition-colors"
+									>
+										<span x-show="!showPassword" class="font-mono text-xs">show</span>
+										<span x-show="showPassword" class="font-mono text-xs">hide</span>
+									</button>
+								</div>
+							</div>
+							<button
+								type="submit"
+								:disabled="loading"
+								class="w-full py-4 mt-4 rounded-xl font-mono text-sm tracking-wider text-white bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 border border-blue-400/50 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:from-blue-350 hover:to-blue-550 active:shadow-md transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden cursor-pointer"
+							>
+								<span class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></span>
+								<span x-show="!loading">ENTER</span>
+								<span x-show="loading" class="flex items-center justify-center gap-2">
+									<span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+									loading...
+								</span>
+							</button>
+						</form>
+						<div class="mt-8 flex items-center justify-between font-mono text-xs text-aero-deep/60">
+							<button href="#" @click="alert('Too bad')" class="cursor-pointer hover:text-aero-azure transition-colors underline underline-offset-4 decoration-aero-azure/30 hover:decoration-aero-azure">forgot?</button>
+							<span class="text-aero-deep/30">·</span>
+						</div>
+					</div>
+					<div class="absolute -bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] text-white/40 tracking-widest">
+						v0.1.0
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}

@@ -21,7 +21,7 @@ const AddTagToBlog = `
 `
 
 const GetTagIDByName = `
-	SELECT id, name FROM tags WHERE name = :name;
+	SELECT id, name, emoji FROM tags WHERE name = :name;
 `
 
 const RemoveTagsFromBlog = `
@@ -29,8 +29,26 @@ const RemoveTagsFromBlog = `
 `
 
 const GetTagsByBlogID = `
-	SELECT t.id, t.name
+	SELECT t.id, t.name, t.emoji
 	FROM tags t
 	INNER JOIN post_tags pt ON t.id = pt.tag_id
 	WHERE pt.post_id = :post_id;
+`
+
+const GetTagsWithCount = `
+	SELECT t.id, t.name, t.emoji, COUNT(pt.post_id) as count
+	FROM tags t
+	LEFT JOIN post_tags pt ON t.id = pt.tag_id
+	GROUP BY t.id, t.name, t.emoji;
+`
+
+const GetAllBlogs = `
+	SELECT id, title, url, description, md_url, reactions FROM posts;
+`
+
+const GetAllBlogsByTag = `
+	SELECT p.id, p.title, p.url, p.description, p.md_url, p.reactions
+	FROM posts p
+	INNER JOIN post_tags pt ON p.id = pt.post_id
+	WHERE pt.tag_id = ?;
 `

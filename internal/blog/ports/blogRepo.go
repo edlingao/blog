@@ -9,4 +9,7 @@ type BlogRepository interface {
 	AddTagsToBlog(blogID string, tags []string) error
 	RemoveTagFromBlog(blogID string, tagID string) error
 	GetTagsByBlogID(blogID string) ([]core.Tag, error)
+	GetTagsWithBlogCount() ([]core.Tag, error)
+	GetAllBlogs() ([]core.Blog, error)
+	GetAllBlogsByTag(tagID string) ([]core.Blog, error)
 }

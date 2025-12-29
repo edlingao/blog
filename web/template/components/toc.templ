@@ -1,0 +1,84 @@
+package components
+
+templ TableOfContents() {
+	<div
+		x-data="tableOfContents"
+		x-show="hasToc"
+		x-cloak
+	>
+		<!-- Desktop: Fixed right panel -->
+		<div class="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex items-center">
+			<!-- Toggle button - always visible -->
+			<button
+				@click="toggle"
+				class="w-10 h-20 rounded-l-xl aero-glass bg-white/20 border border-r-0 border-white/30 flex items-center justify-center hover:bg-white/40 transition-all duration-300 cursor-pointer shadow-lg group"
+				:class="open ? 'bg-white/30' : ''"
+			>
+				<svg
+					class="w-4 h-4 text-aero-deep/70 group-hover:text-aero-azure transition-all duration-300"
+					:class="open ? 'rotate-180' : ''"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+				</svg>
+			</button>
+			<!-- Panel -->
+			<div
+				class="toc-panel-desktop overflow-hidden aero-glass backdrop-blur-xl bg-gradient-to-br from-white/30 to-white/10 border border-l-0 border-white/30 rounded-l-2xl shadow-2xl shadow-black/10"
+				:class="open ? 'toc-panel-desktop--open' : 'toc-panel-desktop--closed'"
+			>
+				<div class="p-5 h-full overflow-auto aero-scrollbar w-72">
+					<!-- Header -->
+					<div class="flex items-center gap-3 mb-4 pb-3 border-b border-white/20">
+						<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-aero-azure/30 to-aero-aqua/20 flex items-center justify-center">
+							<svg class="w-4 h-4 text-aero-azure" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+							</svg>
+						</div>
+						<span class="font-mono text-sm text-aero-deep/80 tracking-wide">contents</span>
+					</div>
+					<!-- TOC content -->
+					<div id="toc-panel-content" class="pr-2"></div>
+				</div>
+			</div>
+		</div>
+		<!-- Mobile: Bottom sheet -->
+		<div class="fixed bottom-0 left-0 right-0 z-40 lg:hidden">
+			<!-- Toggle button -->
+			<button
+				@click="toggle"
+				class="absolute right-4 w-12 h-12 rounded-full aero-glass bg-white/30 border border-white/40 flex items-center justify-center hover:bg-white/50 transition-all duration-300 cursor-pointer shadow-xl"
+				:class="open ? '-top-16 bg-white/50 rotate-180' : '-top-16'"
+			>
+				<svg
+					class="w-5 h-5 text-aero-deep transition-transform duration-300"
+					fill="none"
+					stroke="currentColor"
+					viewBox="0 0 24 24"
+				>
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+				</svg>
+			</button>
+			<!-- Panel -->
+			<div
+				class="toc-panel-mobile overflow-hidden aero-scrollbar aero-glass backdrop-blur-xl bg-gradient-to-t from-white/30 to-white/20 border-t border-white/40 rounded-t-3xl shadow-2xl shadow-black/20"
+				:class="open ? 'toc-panel-mobile--open' : 'toc-panel-mobile--closed'"
+			>
+				<div class="p-6">
+					<div class="w-12 h-1 bg-aero-deep/20 rounded-full mx-auto mb-4"></div>
+					<div class="flex items-center gap-3 mb-4">
+						<div class="w-8 h-8 rounded-lg bg-gradient-to-br from-aero-azure/30 to-aero-aqua/20 flex items-center justify-center">
+							<svg class="w-4 h-4 text-aero-azure" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+							</svg>
+						</div>
+						<span class="font-mono text-sm text-aero-deep/80 tracking-wide">contents</span>
+					</div>
+					<div id="toc-panel-content-mobile"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+}

@@ -129,3 +129,33 @@ func (blogRepo *BlogRepo) GetTagsByBlogID(blogID string) ([]core.Tag, error) {
 
 	return tags, nil
 }
+
+func (blogRepo *BlogRepo) GetTagsWithBlogCount() ([]core.Tag, error) {
+	var tags []core.Tag
+	err := blogRepo.dbConnection.Select(&tags, queries.GetTagsWithCount)
+	if err != nil {
+		return []core.Tag{}, err
+	}
+
+	return tags, nil
+}
+
+func (blogRepo *BlogRepo) GetAllBlogs() ([]core.Blog, error) {
+	var blogs []core.Blog
+	err := blogRepo.dbConnection.Select(&blogs, queries.GetAllBlogs)
+	if err != nil {
+		return []core.Blog{}, err
+	}
+
+	return blogs, nil
+}
+
+func (blogRepo *BlogRepo) GetAllBlogsByTag(tagID string) ([]core.Blog, error) {
+	var blogs []core.Blog
+	err := blogRepo.dbConnection.Select(&blogs, queries.GetAllBlogsByTag, tagID)
+	if err != nil {
+		return []core.Blog{}, err
+	}
+
+	return blogs, nil
+}

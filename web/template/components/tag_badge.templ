@@ -1,0 +1,77 @@
+package components
+
+import (
+	"fmt"
+	"github.com/edlingao/internal/blog/core"
+)
+
+templ TagBadge(tag core.Tag) {
+	<span class="tag-badge">
+		{ tag.Name }
+	</span>
+}
+
+templ TagBadgeClickable(tag core.Tag, active bool, targetID string) {
+	<button
+		class={ "tag-badge", templ.KV("tag-badge--active", active) }
+		hx-get={ fmt.Sprintf("?tag=%s", tag.ID) }
+		hx-target="main"
+		hx-select="main"
+		hx-swap="outerHTML"
+	>
+		{ tag.Name }
+		if tag.Count > 0 {
+			<span class="opacity-60 ml-1">({ fmt.Sprint(tag.Count) })</span>
+		}
+	</button>
+}
+
+templ TagBadgeAll(active bool, targetID string) {
+	<button
+		class={ "tag-badge", templ.KV("tag-badge--active", active) }
+		hx-get="/"
+		hx-target="main"
+		hx-select="main"
+		hx-swap="outerHTML"
+	>
+		all
+	</button>
+}
+
+templ TagTabs(tags []core.Tag, activeTag string) {
+	<div class="tag-tabs">
+		@TagTabAll(activeTag == "")
+		for _, tag := range tags {
+			if tag.Count > 0 {
+				@TagTab(tag, activeTag == tag.ID)
+			}
+		}
+	</div>
+}
+
+templ TagTab(tag core.Tag, active bool) {
+	<button
+		class={ "tag-tab", templ.KV("tag-tab--active", active) }
+		hx-get={ fmt.Sprintf("?tag=%s", tag.ID) }
+		hx-target="main"
+		hx-select="main"
+		hx-swap="outerHTML"
+	>
+		<span class="tag-tab__emoji">{ tag.Emoji }</span>
+		<span class="tag-tab__name">{ tag.Name }</span>
+		<span class="opacity-60">({ fmt.Sprint(tag.Count) })</span>
+	</button>
+}
+
+templ TagTabAll(active bool) {
+	<button
+		class={ "tag-tab", templ.KV("tag-tab--active", active) }
+		hx-get="/"
+		hx-target="main"
+		hx-select="main"
+		hx-swap="outerHTML"
+	>
+		<span class="tag-tab__emoji">✨</span>
+		<span class="tag-tab__name">all</span>
+	</button>
+}

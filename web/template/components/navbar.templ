@@ -1,0 +1,32 @@
+package components
+
+import "strings"
+
+templ Navbar(currentPath string) {
+	<nav class="aero-glass backdrop-blur-xl bg-white/20 border-b border-white/30 sticky top-0 z-50">
+		<div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+			<a href="/" class="font-mono text-xl text-aero-deep tracking-tight hover:text-aero-azure transition-colors">
+				edlingao_
+			</a>
+			<div class="flex gap-8">
+				@navLink("/about", "about_me", currentPath == "/about")
+				@navLink("/", "posts", currentPath == "/posts" || strings.HasPrefix(currentPath, "/post/"))
+				@navLink("/portfolio", "portfolio", currentPath == "/portfolio")
+			</div>
+		</div>
+	</nav>
+}
+
+templ navLink(href, label string, active bool) {
+	<a
+		href={ templ.SafeURL(href) }
+		class={ "font-mono text-sm tracking-wider transition-colors relative",
+			templ.KV("text-aero-azure", active),
+			templ.KV("text-aero-deep/70 hover:text-aero-deep", !active) }
+	>
+		{ label }
+		if active {
+			<div class="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
+		}
+	</a>
+}

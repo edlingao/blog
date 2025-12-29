@@ -1,0 +1,57 @@
+package blogs
+
+import (
+	"github.com/edlingao/internal/blog/core"
+	"github.com/edlingao/web/template/components"
+	"github.com/edlingao/web/template/layout"
+)
+
+type PostsIndexProps struct {
+	Tags      []core.Tag
+	Posts     []core.Blog
+	ActiveTag string
+	Error     string
+}
+
+templ Index(props PostsIndexProps) {
+	@layout.Base(layout.BaseProps{Title: "Posts | Edlingao"}) {
+		@components.Navbar("/posts")
+		<main class="max-w-6xl mx-auto px-6 py-12" x-data="postsFilter">
+			<div class="mb-8">
+				<h1 class="font-mono text-3xl text-aero-deep mb-2">posts</h1>
+				<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
+			</div>
+			<div id="posts-error">
+				if props.Error != "" {
+					@PostsError(props.Error)
+				}
+			</div>
+			<div class="flex gap-8">
+				<aside class="shrink-0">
+					@components.TagTabs(props.Tags, props.ActiveTag)
+				</aside>
+				<div id="posts-grid" class="flex-1 flex flex-col gap-4">
+					if len(props.Posts) > 0 {
+						@components.PostCardList(props.Posts)
+					} else {
+						@components.PostCardEmpty()
+					}
+				</div>
+			</div>
+		</main>
+	}
+}
+
+templ PostsPartial(posts []core.Blog) {
+	if len(posts) > 0 {
+		@components.PostCardList(posts)
+	} else {
+		@components.PostCardEmpty()
+	}
+}
+
+templ PostsError(msg string) {
+	<div class="mb-6 p-4 rounded-xl bg-red-500/20 backdrop-blur border border-red-300/30 text-red-900 font-mono text-sm">
+		{ msg }
+	</div>
+}

@@ -1,0 +1,78 @@
+package blogs
+
+import (
+	"github.com/edlingao/internal/blog/core"
+	"github.com/edlingao/web/template/components"
+	"github.com/edlingao/web/template/layout"
+)
+
+type BlogDetailProps struct {
+	Post            *core.Blog
+	HTMLContent     string
+	Comments        []core.Comment
+	CommentsEnabled bool
+}
+
+templ Detail(props BlogDetailProps) {
+	@layout.Base(layout.BaseProps{Title: props.Post.Title + " | Edlingao"}) {
+		@components.Navbar("/posts")
+		@components.TableOfContents()
+		@HighlitedCode()
+		<main class="max-w-4xl mx-auto px-6 py-12" x-data="commentForm">
+			<article>
+				<header class="mb-10">
+					<a href="/" class="inline-flex items-center gap-2 font-mono text-xs text-aero-deep/50 hover:text-aero-azure transition-colors mb-6">
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+						</svg>
+						back_to_posts
+					</a>
+					<h1 class="font-heading text-4xl md:text-5xl text-aero-deep mb-4">
+						{ props.Post.Title }
+					</h1>
+					<div class="flex flex-wrap items-center gap-4 mb-6">
+						<time class="font-mono text-sm text-aero-deep/50">
+							{ props.Post.CreatedAt }
+						</time>
+						<span class="text-aero-deep/20">|</span>
+						<div class="flex flex-wrap gap-2">
+							for _, tag := range props.Post.Tags {
+								@components.TagBadge(tag)
+							}
+						</div>
+					</div>
+					<p class="font-body text-lg text-aero-deep/70 leading-relaxed">
+						{ props.Post.Description }
+					</p>
+				</header>
+				<div class="aero-glass backdrop-blur-xl bg-white/20 border border-white/40 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/10">
+					<div class="blog-content h-[50dvh] overflow-auto aero-scrollbar">
+						@templ.Raw(props.HTMLContent)
+					</div>
+				</div>
+			</article>
+			<section class="mt-12">
+				<div class="flex items-center gap-4 mb-8">
+					<h2 class="font-mono text-2xl text-aero-deep">comments</h2>
+					<div class="flex-1 h-px bg-gradient-to-r from-white/30 to-transparent"></div>
+				</div>
+				if props.CommentsEnabled {
+					<div class="mb-8">
+						@components.CommentForm(props.Post.ID)
+					</div>
+					@components.CommentList(props.Comments, props.Post.ID)
+				} else {
+					@components.CommentFormDisabled()
+				}
+			</section>
+		</main>
+	}
+}
+
+templ HighlitedCode() {
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"/>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+	<!-- and it's easy to individually load additional languages -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/go.min.js"></script>
+	<script>hljs.highlightAll();</script>
+}

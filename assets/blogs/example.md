@@ -1,5 +1,5 @@
 ---
-tags: [technology, tutorials]
+tags: [technology, tutorials, gaming, books]
 description: A blog post about technology tutorials.
 ---
 
@@ -33,7 +33,6 @@ function greet() {
 ```
 
 ```html
-<!DOCTYPE html>
 <html>
 <head>
     <title>Sample HTML</title>
