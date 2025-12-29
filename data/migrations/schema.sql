@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
   username VARCHAR(50) UNIQUE NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
   password_hash VARCHAR(255) NOT NULL,
   role VARCHAR(50) DEFAULT 'user',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -33,7 +32,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS tags (
   id INTEGER PRIMARY KEY,
-  name VARCHAR(50) UNIQUE NOT NULL
+  name VARCHAR(50) UNIQUE NOT NULL,
+  emoji VARCHAR(10) DEFAULT ''
 );
 
 CREATE TABLE IF NOT EXISTS post_tags (
@@ -44,16 +44,16 @@ CREATE TABLE IF NOT EXISTS post_tags (
   FOREIGN KEY (tag_id) REFERENCES tags(id)
 );
 
-INSERT OR IGNORE INTO tags (name) VALUES
-('books'),
-('tutorials'),
-('music'),
-('projects'),
-('art'),
-('photography'),
-('travel'),
-('food'),
-('technology'),
-('gaming'),
-('movies');
+INSERT OR IGNORE INTO tags (name, emoji) VALUES
+('books', '📚'),
+('tutorials', '📖'),
+('music', '🎵'),
+('projects', '🛠️'),
+('art', '🎨'),
+('photography', '📷'),
+('travel', '✈️'),
+('food', '🍜'),
+('technology', '💻'),
+('gaming', '🎮'),
+('movies', '🎬');
 

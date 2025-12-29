@@ -1,0 +1,52 @@
+package components
+
+import (
+	"fmt"
+	"github.com/edlingao/internal/blog/core"
+)
+
+templ CommentThread(comment core.Comment, postID string) {
+	<div class="aero-glass bg-white/15 backdrop-blur rounded-xl p-4 mb-4" id={ "comment-" + comment.ID }>
+		<p class="font-body text-sm text-aero-deep/80 mb-3 leading-relaxed">
+			{ comment.Content }
+		</p>
+		<div class="flex items-center gap-4">
+			<button
+				@click={ fmt.Sprintf("replyTo = '%s'; $refs.commentInput.focus()", comment.ID) }
+				class="font-mono text-xs text-aero-deep/50 hover:text-aero-azure transition-colors cursor-pointer"
+			>
+				reply
+			</button>
+		</div>
+		if len(comment.Children) > 0 {
+			<div class="comment-thread mt-4">
+				for _, reply := range comment.Children {
+					@CommentThread(reply, postID)
+				}
+			</div>
+		}
+	</div>
+}
+
+templ CommentList(comments []core.Comment, postID string) {
+	<div id="comments-list">
+		if len(comments) > 0 {
+			for _, comment := range comments {
+				@CommentThread(comment, postID)
+			}
+		} else {
+			@CommentEmpty()
+		}
+	</div>
+}
+
+templ CommentEmpty() {
+	<div class="text-center py-8">
+		<p class="font-mono text-sm text-aero-deep/50">no_comments_yet</p>
+		<p class="font-body text-xs text-aero-deep/40 mt-1">Be the first to share your thoughts!</p>
+	</div>
+}
+
+templ CommentSingle(comment core.Comment, postID string) {
+	@CommentThread(comment, postID)
+}

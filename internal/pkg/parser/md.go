@@ -17,6 +17,8 @@ var MDParser = goldmark.New(
 		extension.TaskList,
 		extension.Linkify,
 		meta.Meta,
-		&toc.Extender{},
+		&toc.Extender{
+			ListID: "TableOfContents",
+		},
 	),
 )

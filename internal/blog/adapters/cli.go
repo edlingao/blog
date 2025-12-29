@@ -3,16 +3,22 @@ package adapters
 import (
 	"log"
 
+	"github.com/edlingao/internal/auth/ports"
 	"github.com/edlingao/internal/blog/core"
 )
 
 type CLIService struct {
-	blogRepo *BlogRepo
+	blogRepo    *BlogRepo
+	userSerivce ports.UserService
 }
 
-func NewCLIService(blogRepo *BlogRepo) *CLIService {
+func NewCLIService(
+	blogRepo *BlogRepo,
+	userService ports.UserService,
+) *CLIService {
 	return &CLIService{
-		blogRepo: blogRepo,
+		blogRepo:    blogRepo,
+		userSerivce: userService,
 	}
 }
 
@@ -69,4 +75,8 @@ func (c *CLIService) UpdateEntry(title string) error {
 	}
 
 	return nil
+}
+
+func (c *CLIService) AddUser(username, password, role string) error {
+	return c.userSerivce.Register(username, password, role)
 }

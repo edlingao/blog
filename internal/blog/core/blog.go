@@ -26,6 +26,7 @@ type Blog struct {
 	Tags        []Tag    `json:"tags" db:"tags"`
 	Reactions   string   `json:"reactions" db:"reactions"`
 	tags        []string `json:"-" db:"-"`
+	CreatedAt   string   `json:"created_at" db:"created_at"`
 }
 
 func NewBlog(title string) *Blog {
@@ -54,6 +55,14 @@ func (blog *Blog) RemoveTag(tag string) {
 
 func (blog *Blog) SetDescription(description string) {
 	blog.Description = description
+}
+
+func (blog *Blog) GetContent() string {
+	content, err := os.ReadFile(blog.URL)
+	if err != nil {
+		return ""
+	}
+	return string(content)
 }
 
 // This step assumes that the markdown file already exists in the specified path.

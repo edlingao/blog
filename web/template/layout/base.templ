@@ -17,8 +17,8 @@ templ Base(props BaseProps) {
 			<title>{ props.Title }</title>
 			<link rel="preconnect" href="https://fonts.googleapis.com"/>
 			<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-			<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet"/>
-			<link rel="icon" type="image/png" href="/static/favicon.png"/>
+			<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Syne+Mono&display=swap" rel="stylesheet"/>
+			<link rel="icon" type="image/svg" href="/static/vite.svg"/>
 			if IsDev {
 				<script type="module" src="http://localhost:3001/@vite/client"></script>
 				<script type="module" src="http://localhost:3001/src/main.ts"></script>
@@ -26,7 +26,17 @@ templ Base(props BaseProps) {
 				@prodAssets()
 			}
 		</head>
-		<body>
+		<body class="min-h-screen aero-bg relative" hx-boost="true">
+			<div class="overflow-hidden absolute inset-0 pointer-events-none">
+				<div class="absolute w-[340px] h-[340px] -top-20 -left-20 rounded-full bg-gradient-to-br from-white/30 to-white/5 blur-sm pointer-events-none" style="animation: blob-float 8s ease-in-out infinite;"></div>
+				<div class="absolute w-[180px] h-[180px] top-1/4 left-[8%] rounded-full bg-gradient-to-br from-cyan-200/40 to-transparent pointer-events-none" style="animation: blob-float 11s ease-in-out infinite 2s;"></div>
+				<div class="absolute w-[260px] h-[260px] -bottom-16 -right-16 rounded-full bg-gradient-to-tl from-white/25 to-white/5 blur-sm pointer-events-none" style="animation: blob-float 9s ease-in-out infinite 1s;"></div>
+				<div class="absolute w-[90px] h-[90px] bottom-1/3 right-[12%] rounded-full bg-gradient-to-br from-sky-300/50 to-transparent pointer-events-none" style="animation: blob-float 7s ease-in-out infinite 3s;"></div>
+				<div class="absolute w-[50px] h-[50px] top-[15%] right-[25%] rounded-full bg-gradient-to-br from-white/60 to-white/10 pointer-events-none" style="animation: blob-float 6s ease-in-out infinite 0.5s;"></div>
+				<div class="absolute w-[140px] h-[140px] top-[55%] left-[5%] rounded-full bg-gradient-to-br from-emerald-300/35 to-transparent pointer-events-none" style="animation: blob-float 9s ease-in-out infinite 1.5s;"></div>
+				<div class="absolute w-[60px] h-[60px] top-[8%] left-[35%] rounded-full bg-gradient-to-br from-green-200/40 to-transparent pointer-events-none" style="animation: blob-float 7s ease-in-out infinite 2s;"></div>
+				<div class="relative z-10 min-h-screen"></div>
+			</div>
 			{ children... }
 		</body>
 	</html>

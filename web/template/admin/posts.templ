@@ -1,0 +1,145 @@
+package admin
+
+import (
+	"fmt"
+	"github.com/edlingao/web/template/layout"
+	"github.com/edlingao/internal/blog/core"
+)
+
+type AdminPost struct {
+	core.Blog
+	CommentsEnabled bool
+	CommentCount    int
+}
+
+type AdminPostsProps struct {
+	Posts   []AdminPost
+	Message string
+}
+
+templ Posts(props AdminPostsProps) {
+	@layout.Base(layout.BaseProps{Title: "Admin - Posts"}) {
+		<main class="max-w-6xl mx-auto px-6 py-12" x-data="adminPosts">
+			<div class="flex items-center justify-between mb-8">
+				<div>
+					<h1 class="font-mono text-3xl text-aero-deep mb-2">admin/posts</h1>
+					<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
+				</div>
+				<div class="flex items-center gap-4">
+					<a
+						href="/admin/comments"
+						class="px-4 py-2 rounded-xl font-mono text-sm text-aero-deep/70 bg-white/30 border border-white/40 hover:bg-white/50 transition-all"
+					>
+						manage_comments
+					</a>
+					<button
+						hx-post="/api/posts/refresh"
+						hx-target="#refresh-message"
+						hx-swap="innerHTML"
+						class="px-4 py-2 rounded-xl font-mono text-sm tracking-wider text-white bg-gradient-to-b from-emerald-400 to-emerald-600 border border-emerald-400/50 shadow-lg shadow-emerald-500/30 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden"
+						:disabled="refreshing"
+					>
+						<span class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></span>
+						<span x-show="!refreshing">refresh_cli</span>
+						<span x-show="refreshing" class="flex items-center gap-2">
+							<span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+							running...
+						</span>
+					</button>
+				</div>
+			</div>
+			<div id="refresh-message">
+				if props.Message != "" {
+					@AdminMessage(props.Message, "success")
+				}
+			</div>
+			<div class="aero-glass backdrop-blur-xl bg-white/20 border border-white/40 rounded-3xl p-6 shadow-2xl shadow-black/10">
+				if len(props.Posts) > 0 {
+					<table class="admin-table w-full">
+						<thead>
+							<tr>
+								<th class="text-left">title</th>
+								<th class="text-center">comments</th>
+								<th class="text-center">created</th>
+								<th class="text-right">actions</th>
+							</tr>
+						</thead>
+						<tbody id="posts-table">
+							for _, post := range props.Posts {
+								@AdminPostRow(post)
+							}
+						</tbody>
+					</table>
+				} else {
+					<div class="text-center py-12">
+						<p class="font-mono text-aero-deep/50">no_posts_found</p>
+						<p class="font-body text-sm text-aero-deep/40 mt-2">Run the CLI tool to import posts.</p>
+					</div>
+				}
+			</div>
+		</main>
+	}
+}
+
+templ AdminPostRow(post AdminPost) {
+	<tr id={ "post-row-" + post.ID } class="border-t border-white/10">
+		<td class="py-4">
+			<a href={ templ.SafeURL("/post/" + post.URL) } class="font-body text-aero-deep hover:text-aero-azure transition-colors">
+				{ post.Title }
+			</a>
+		</td>
+		<td class="py-4 text-center">
+			<button
+				hx-post={ fmt.Sprintf("/api/posts/%s/comments/toggle", post.ID) }
+				hx-target={ "#post-row-" + post.ID }
+				hx-swap="outerHTML"
+				class={ "font-mono text-xs px-3 py-1 rounded-full transition-all cursor-pointer",
+					templ.KV("bg-emerald-500/20 text-emerald-800 border border-emerald-300/30", post.CommentsEnabled),
+					templ.KV("bg-red-500/20 text-red-800 border border-red-300/30", !post.CommentsEnabled) }
+			>
+				if post.CommentsEnabled {
+					on ({ fmt.Sprint(post.CommentCount) })
+				} else {
+					off
+				}
+			</button>
+		</td>
+		<td class="py-4 text-center">
+			<span class="font-mono text-xs text-aero-deep/50">{ post.CreatedAt }</span>
+		</td>
+		<td class="py-4 text-right">
+			<div x-show={ fmt.Sprintf("confirmDelete !== '%s'", post.ID) }>
+				<button
+					@click={ fmt.Sprintf("askDelete('%s')", post.ID) }
+					class="font-mono text-xs text-red-600/70 hover:text-red-600 transition-colors cursor-pointer"
+				>
+					delete
+				</button>
+			</div>
+			<div x-show={ fmt.Sprintf("confirmDelete === '%s'", post.ID) } x-cloak class="flex items-center justify-end gap-2">
+				<button
+					hx-delete={ "/api/posts/" + post.ID }
+					hx-target={ "#post-row-" + post.ID }
+					hx-swap="delete"
+					class="font-mono text-xs px-3 py-1 rounded-lg bg-red-500 text-white cursor-pointer"
+				>
+					confirm
+				</button>
+				<button
+					@click="cancelDelete"
+					class="font-mono text-xs px-3 py-1 rounded-lg bg-white/50 text-aero-deep cursor-pointer"
+				>
+					cancel
+				</button>
+			</div>
+		</td>
+	</tr>
+}
+
+templ AdminMessage(message string, msgType string) {
+	<div class={ "mb-6 p-4 rounded-xl backdrop-blur border font-mono text-sm",
+		templ.KV("bg-emerald-500/20 border-emerald-300/30 text-emerald-900", msgType == "success"),
+		templ.KV("bg-red-500/20 border-red-300/30 text-red-900", msgType == "error") }>
+		{ message }
+	</div>
+}
