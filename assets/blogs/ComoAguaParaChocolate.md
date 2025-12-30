@@ -1,5 +1,5 @@
 ---
-tags: [book, art]
+tags: [books, art]
 description: "Resumen del libro Como agua para chocolate de Laura Esquivel"
 ---
 
