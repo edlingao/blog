@@ -9,7 +9,7 @@ const GetByTitle = `
 		md_url,
 		reactions,
 		comments_available
-	FROM posts WHERE title = :title;
+	FROM posts WHERE title = ?;
 `
 
 const InsertPost = `
@@ -35,7 +35,7 @@ const AddTagToBlog = `
 `
 
 const GetTagIDByName = `
-	SELECT id, name, emoji FROM tags WHERE name = :name;
+	SELECT id, name, emoji FROM tags WHERE name = ?;
 `
 
 const RemoveTagsFromBlog = `
@@ -46,7 +46,7 @@ const GetTagsByBlogID = `
 	SELECT t.id, t.name, t.emoji
 	FROM tags t
 	INNER JOIN post_tags pt ON t.id = pt.tag_id
-	WHERE pt.post_id = :post_id;
+	WHERE pt.post_id = ?;
 `
 
 const GetTagsWithCount = `
