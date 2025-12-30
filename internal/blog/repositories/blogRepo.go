@@ -1,4 +1,4 @@
-package adapters
+package repositories
 
 import (
 	"errors"
@@ -158,4 +158,23 @@ func (blogRepo *BlogRepo) GetAllBlogsByTag(tagID string) ([]core.Blog, error) {
 	}
 
 	return blogs, nil
+}
+
+func (blogRepo *BlogRepo) DeleteBlog(blogID string) error {
+	_, err := blogRepo.dbConnection.Exec(queries.DeletePostByID, blogID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (blogRepo *BlogRepo) GetBlogByID(blogID string) (*core.Blog, error) {
+	blog := &core.Blog{}
+	err := blogRepo.dbConnection.Get(blog, queries.GetBlogByID, blogID)
+	if err != nil {
+		return &core.Blog{}, err
+	}
+
+	return blog, nil
 }

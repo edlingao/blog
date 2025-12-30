@@ -3,18 +3,19 @@ package adapters
 import (
 	"log"
 
-	"github.com/edlingao/internal/auth/ports"
+	auth "github.com/edlingao/internal/auth/ports"
 	"github.com/edlingao/internal/blog/core"
+	"github.com/edlingao/internal/blog/ports"
 )
 
 type CLIService struct {
-	blogRepo    *BlogRepo
-	userSerivce ports.UserService
+	blogRepo    ports.BlogRepository
+	userSerivce auth.UserService
 }
 
 func NewCLIService(
-	blogRepo *BlogRepo,
-	userService ports.UserService,
+	blogRepo ports.BlogRepository,
+	userService auth.UserService,
 ) *CLIService {
 	return &CLIService{
 		blogRepo:    blogRepo,

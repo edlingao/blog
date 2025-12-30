@@ -1,6 +1,7 @@
 ---
 tags: [technology, tutorials, gaming, books]
 description: A blog post about technology tutorials.
+comments: true
 ---
 
 # This is my first markdw file blog

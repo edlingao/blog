@@ -1,29 +1,15 @@
 package components
 
-templ CommentForm(postID string) {
-	<div class="aero-glass bg-white/20 backdrop-blur rounded-xl p-6" x-data="commentForm">
-		<div
-			x-show="replyTo"
-			x-cloak
-			class="mb-4 px-3 py-2 rounded-lg bg-aero-azure/10 border border-aero-azure/20 flex items-center justify-between"
-		>
-			<span class="font-mono text-xs text-aero-azure">replying to comment...</span>
-			<button
-				@click="cancelReply"
-				class="font-mono text-xs text-aero-deep/50 hover:text-red-500 transition-colors cursor-pointer"
-			>
-				cancel
-			</button>
-		</div>
+templ CommentForm(postTitle string) {
+	<div x-data="commentEvents" class="hidden"></div>
+	<div
+		class="aero-glass bg-white/20 backdrop-blur rounded-xl p-6"
+	>
 		<form
-			hx-post="/api/comments"
-			hx-target="#comments-list"
-			hx-swap="afterbegin"
-			@htmx:after-request="resetForm"
+			hx-post={ "/post/" + postTitle + "/comments" }
+			hx-swap="none"
 			class="space-y-4"
 		>
-			<input type="hidden" name="post_id" value={ postID }/>
-			<input type="hidden" name="reply_to" :value="replyTo || ''"/>
 			<div>
 				<label for="author" class="font-mono text-xs tracking-widest text-aero-deep/70 uppercase block mb-2">
 					name
@@ -55,7 +41,6 @@ templ CommentForm(postID string) {
 			</div>
 			<button
 				type="submit"
-				:disabled="loading || !content.trim()"
 				class="px-6 py-3 rounded-xl font-mono text-sm tracking-wider text-white bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600 border border-blue-400/50 shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 active:shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed relative overflow-hidden cursor-pointer"
 			>
 				<span class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></span>

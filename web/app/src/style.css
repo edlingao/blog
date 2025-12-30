@@ -167,14 +167,12 @@
 .tag-tabs {
   @apply flex flex-col gap-0.5 p-2 rounded-xl;
   @apply bg-white/20 backdrop-blur border border-white/30;
-  min-width: 160px;
 }
 
 .tag-tab {
-  @apply flex items-center gap-2 px-3 py-2 rounded-lg;
-  @apply text-sm text-aero-deep/80;
-  @apply hover:bg-white/40 transition-all cursor-pointer;
-  font-family: var(--font-mono);
+  @apply relative flex items-center justify-center p-2.5 rounded-lg;
+  @apply text-aero-deep/70;
+  @apply hover:bg-white/40 hover:text-aero-deep transition-all cursor-pointer;
 }
 
 .tag-tab--active {
@@ -182,12 +180,21 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.tag-tab__emoji {
-  @apply text-base;
+.tag-tab__tooltip {
+  @apply absolute left-full ml-2 px-2 py-1 rounded-md;
+  @apply bg-white/80 backdrop-blur border border-white/50;
+  @apply text-xs text-aero-deep whitespace-nowrap;
+  @apply opacity-0 pointer-events-none transition-opacity;
+  font-family: var(--font-mono);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
-.tag-tab__name {
-  @apply lowercase tracking-wide;
+.tag-tab__tooltip {
+  @apply opacity-0;
+}
+
+.tag-tab:hover .tag-tab__tooltip {
+  @apply opacity-100;
 }
 
 .comment-thread {
@@ -322,3 +329,11 @@
   @apply text-xs opacity-80;
 }
 
+@keyframes comment-highlight-fade {
+  from { background-color: rgba(0, 128, 255, 0.3); }
+  to { background-color: transparent; }
+}
+
+.comment-highlight {
+  animation: comment-highlight-fade 2s ease-out;
+}

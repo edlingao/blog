@@ -18,15 +18,18 @@ const (
 )
 
 type Blog struct {
-	ID          string   `json:"id" db:"id"`
-	Title       string   `json:"title" db:"title"`
-	URL         string   `json:"url" db:"url"`
-	MDURL       string   `json:"md_url" db:"md_url"`
-	Description string   `json:"description" db:"description"`
-	Tags        []Tag    `json:"tags" db:"tags"`
-	Reactions   string   `json:"reactions" db:"reactions"`
-	tags        []string `json:"-" db:"-"`
-	CreatedAt   string   `json:"created_at" db:"created_at"`
+	ID                string     `json:"id" db:"id"`
+	Title             string     `json:"title" db:"title"`
+	URL               string     `json:"url" db:"url"`
+	MDURL             string     `json:"md_url" db:"md_url"`
+	Description       string     `json:"description" db:"description"`
+	Tags              []Tag      `json:"tags" db:"tags"`
+	Reactions         string     `json:"reactions" db:"reactions"`
+	tags              []string   `json:"-" db:"-"`
+	CreatedAt         string     `json:"created_at" db:"created_at"`
+	CommentsAvailable bool       `json:"comments_available" db:"comments_available"`
+	Comments          []*Comment `json:"comments" db:"comments,omitempty"`
+	CommentsCount     int        `json:"comments_count" db:"comments_count,omitempty"`
 }
 
 func NewBlog(title string) *Blog {
@@ -65,6 +68,14 @@ func (blog *Blog) GetContent() string {
 	return string(content)
 }
 
+func (blog *Blog) SetCommentAvailable(available bool) {
+	blog.CommentsAvailable = available
+}
+
+func (blog *Blog) ToggleCommentsAvailability() {
+	blog.CommentsAvailable = !blog.CommentsAvailable
+}
+
 // This step assumes that the markdown file already exists in the specified path.
 // That the metadata and other content is already saved on the DB
 // This will only process the markdown file and parsed it as HTML
@@ -82,9 +93,14 @@ func (blog *Blog) ProcessFileAndSave() error {
 
 	description := metaData["description"]
 	tags := metaData["tags"]
+	commentsAvailable := metaData["comments"]
 
 	if descriptionStr, ok := description.(string); ok {
 		blog.SetDescription(descriptionStr)
+	}
+
+	if commentsAvailableBool, ok := commentsAvailable.(bool); ok {
+		blog.SetCommentAvailable(commentsAvailableBool)
 	}
 
 	if tagsSlice, ok := tags.([]any); ok {

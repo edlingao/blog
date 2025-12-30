@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS posts (
   description TEXT,
   md_url TEXT,
   reactions TEXT,
+  comments_available INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -13,12 +14,13 @@ CREATE TABLE IF NOT EXISTS comments (
   id INTEGER PRIMARY KEY,
   post_id INT NOT NULL,
   comment_id INT,
+  author VARCHAR(100) NOT NULL,
   content TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   reactions TEXT,
-  FOREIGN KEY (post_id) REFERENCES posts(id),
-  FOREIGN KEY (comment_id) REFERENCES comments(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (comment_id) REFERENCES comments(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS users (
@@ -40,8 +42,8 @@ CREATE TABLE IF NOT EXISTS post_tags (
   post_id INTEGER NOT NULL,
   tag_id INT NOT NULL,
   PRIMARY KEY (post_id, tag_id),
-  FOREIGN KEY (post_id) REFERENCES posts(id),
-  FOREIGN KEY (tag_id) REFERENCES tags(id)
+  FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+  FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE
 );
 
 INSERT OR IGNORE INTO tags (name, emoji) VALUES

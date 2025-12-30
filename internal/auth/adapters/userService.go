@@ -56,8 +56,8 @@ func (userService *UserService) LoginPostHandler(c echo.Context) error {
 		}), 200)
 	}
 
-	// For simplicity, we just redirect to home
-	return c.Redirect(302, "/")
+	c.Response().Header().Add("HX-Redirect", "/admin/posts")
+	return c.Redirect(200, "/admin/posts")
 }
 
 func (userService *UserService) LogoutHandler(c echo.Context) error {

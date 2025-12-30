@@ -9,15 +9,15 @@ import (
 type BlogDetailProps struct {
 	Post            *core.Blog
 	HTMLContent     string
-	Comments        []core.Comment
+	Comments        []*core.Comment
 	CommentsEnabled bool
+	Error           error
 }
 
 templ Detail(props BlogDetailProps) {
 	@layout.Base(layout.BaseProps{Title: props.Post.Title + " | Edlingao"}) {
 		@components.Navbar("/posts")
 		@components.TableOfContents()
-		@HighlitedCode()
 		<main class="max-w-4xl mx-auto px-6 py-12" x-data="commentForm">
 			<article>
 				<header class="mb-10">
@@ -27,14 +27,13 @@ templ Detail(props BlogDetailProps) {
 						</svg>
 						back_to_posts
 					</a>
-					<h1 class="font-heading text-4xl md:text-5xl text-aero-deep mb-4">
+					<h1 class="font-heading text-4xl md:text-5xl text-aero-deep mb-4 capitalize">
 						{ props.Post.Title }
 					</h1>
 					<div class="flex flex-wrap items-center gap-4 mb-6">
 						<time class="font-mono text-sm text-aero-deep/50">
 							{ props.Post.CreatedAt }
 						</time>
-						<span class="text-aero-deep/20">|</span>
 						<div class="flex flex-wrap gap-2">
 							for _, tag := range props.Post.Tags {
 								@components.TagBadge(tag)
@@ -56,23 +55,20 @@ templ Detail(props BlogDetailProps) {
 					<h2 class="font-mono text-2xl text-aero-deep">comments</h2>
 					<div class="flex-1 h-px bg-gradient-to-r from-white/30 to-transparent"></div>
 				</div>
+				if props.Error != nil {
+					<div class="mb-6 p-4 rounded-xl bg-red-500/20 backdrop-blur border border-red-300/30 text-red-900 font-mono text-sm">
+						{ props.Error.Error() }
+					</div>
+				}
 				if props.CommentsEnabled {
 					<div class="mb-8">
-						@components.CommentForm(props.Post.ID)
+						@components.CommentForm(props.Post.Title)
 					</div>
-					@components.CommentList(props.Comments, props.Post.ID)
+					@components.CommentList(props.Comments, props.Post.Title)
 				} else {
 					@components.CommentFormDisabled()
 				}
 			</section>
 		</main>
 	}
-}
-
-templ HighlitedCode() {
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"/>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
-	<!-- and it's easy to individually load additional languages -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/go.min.js"></script>
-	<script>hljs.highlightAll();</script>
 }
