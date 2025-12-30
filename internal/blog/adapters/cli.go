@@ -36,13 +36,13 @@ func (c *CLIService) SaveEntry(title string) error {
 		return nil
 	}
 
-	_, err = c.blogRepo.Save(blogObj)
+	blog, err := c.blogRepo.Save(blogObj)
 	if err != nil {
 		log.Println("Error saving blog: ", err)
 		return err
 	}
 
-	err = c.blogRepo.AddTagsToBlog(blogObj.ID, blogObj.GetTags())
+	err = c.blogRepo.AddTagsToBlog(blog.ID, blogObj.GetTags())
 	if err != nil {
 		log.Println("Error adding tags to blog: ", err)
 		return err
