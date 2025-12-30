@@ -11,5 +11,7 @@ func New() *sqlx.DB {
 		panic(err)
 	}
 
+	db.Exec("PRAGMA foreign_keys = ON;")
+
 	return db
 }

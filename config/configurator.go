@@ -5,10 +5,13 @@ import (
 	"os"
 
 	"github.com/edlingao/internal/blog/adapters"
+	"github.com/edlingao/internal/blog/core"
 	"github.com/edlingao/internal/blog/ports"
+	blogRepositories "github.com/edlingao/internal/blog/repositories"
 
 	userAdapters "github.com/edlingao/internal/auth/adapters"
 	userPorts "github.com/edlingao/internal/auth/ports"
+	userRepositories "github.com/edlingao/internal/auth/repositories"
 	"github.com/edlingao/internal/pkg/database"
 	"github.com/edlingao/web"
 	"github.com/edlingao/web/template/layout"
@@ -53,7 +56,7 @@ func NewConfigurator() *Configurator {
 }
 
 func (configurator *Configurator) CLIService() *Configurator {
-	blogRepo := adapters.NewBlogRepo(configurator.db)
+	blogRepo := blogRepositories.NewBlogRepo(configurator.db)
 	cliService := adapters.NewCLIService(
 		blogRepo,
 		configurator.Users,
@@ -65,7 +68,7 @@ func (configurator *Configurator) CLIService() *Configurator {
 }
 
 func (configurator *Configurator) AddUserService() *Configurator {
-	userRepo := userAdapters.NewUserRepo(configurator.db)
+	userRepo := userRepositories.NewUserRepo(configurator.db)
 	userService := userAdapters.NewUserService(
 		userRepo,
 		configurator.root,
@@ -77,10 +80,15 @@ func (configurator *Configurator) AddUserService() *Configurator {
 }
 
 func (configurator *Configurator) AddBlogService() *Configurator {
-	blogRepo := adapters.NewBlogRepo(configurator.db)
+	blogRepo := blogRepositories.NewBlogRepo(configurator.db)
+	commentsRepo := blogRepositories.NewCommentsRepo(configurator.db)
+	commentsChannelAdapter := core.NewCommentsEventManager()
+
 	blogService := adapters.NewBlogService(
 		configurator.root,
 		blogRepo,
+		commentsRepo,
+		commentsChannelAdapter,
 	)
 
 	configurator.Blog = blogService

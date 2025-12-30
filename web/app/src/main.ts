@@ -6,6 +6,10 @@ import "./blog";
 import "./about";
 import "./admin";
 import "./toc";
+import { CommentEvents } from "./state/commentEvents";
+
+import hljs from "highlight.js";
+import "highlight.js/styles/github.css";
 
 htmx.config.responseHandling = [
   { code: "204", swap: false },
@@ -13,4 +17,12 @@ htmx.config.responseHandling = [
   { code: "[45]..", swap: true, error: true },
 ];
 
-Alpine.start();
+CommentEvents();
+
+document.addEventListener("DOMContentLoaded", () => {
+  hljs.highlightAll();
+  Alpine.start();
+  document.body.addEventListener("htmx:afterSwap", () => {
+    hljs.highlightAll();
+  });
+});

@@ -1,4 +1,4 @@
-package adapters
+package repositories
 
 import (
 	"github.com/edlingao/internal/auth/core"

@@ -1,6 +1,7 @@
 ---
 tags: [books, music]
 description: This is a sample markdown file named "new.md" containing "HOLA MUNDO".
+comments: false
 ---
 # HOLA MUNDO
 

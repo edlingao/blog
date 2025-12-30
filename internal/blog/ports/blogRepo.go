@@ -12,4 +12,6 @@ type BlogRepository interface {
 	GetTagsWithBlogCount() ([]core.Tag, error)
 	GetAllBlogs() ([]core.Blog, error)
 	GetAllBlogsByTag(tagID string) ([]core.Blog, error)
+	DeleteBlog(blogID string) error
+	GetBlogByID(blogID string) (*core.Blog, error)
 }

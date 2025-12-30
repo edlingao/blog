@@ -57,9 +57,8 @@ templ TagTab(tag core.Tag, active bool) {
 		hx-select="main"
 		hx-swap="outerHTML"
 	>
-		<span class="tag-tab__emoji">{ tag.Emoji }</span>
-		<span class="tag-tab__name">{ tag.Name }</span>
-		<span class="opacity-60">({ fmt.Sprint(tag.Count) })</span>
+		@TagIcon(tag.Name, "w-5 h-5")
+		<span class="tag-tab__tooltip">{ tag.Name } ({ fmt.Sprint(tag.Count) })</span>
 	</button>
 }
 
@@ -71,7 +70,7 @@ templ TagTabAll(active bool) {
 		hx-select="main"
 		hx-swap="outerHTML"
 	>
-		<span class="tag-tab__emoji">✨</span>
-		<span class="tag-tab__name">all</span>
+		@IconSparkles("w-5 h-5")
+		<span class="tag-tab__tooltip">all</span>
 	</button>
 }

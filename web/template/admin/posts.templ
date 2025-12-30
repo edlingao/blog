@@ -2,18 +2,13 @@ package admin
 
 import (
 	"fmt"
-	"github.com/edlingao/web/template/layout"
 	"github.com/edlingao/internal/blog/core"
+	"github.com/edlingao/web/template/layout"
+	"strconv"
 )
 
-type AdminPost struct {
-	core.Blog
-	CommentsEnabled bool
-	CommentCount    int
-}
-
 type AdminPostsProps struct {
-	Posts   []AdminPost
+	Posts   []core.Blog
 	Message string
 }
 
@@ -26,6 +21,12 @@ templ Posts(props AdminPostsProps) {
 					<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
 				</div>
 				<div class="flex items-center gap-4">
+					<a
+						href="/logout"
+						class="px-4 py-2 rounded-xl font-mono text-sm text-red-600/70 bg-red-500/10 border border-red-300/30 hover:bg-red-500/20 hover:text-red-600 transition-all"
+					>
+						logout
+					</a>
 					<a
 						href="/admin/comments"
 						class="px-4 py-2 rounded-xl font-mono text-sm text-aero-deep/70 bg-white/30 border border-white/40 hover:bg-white/50 transition-all"
@@ -81,24 +82,25 @@ templ Posts(props AdminPostsProps) {
 	}
 }
 
-templ AdminPostRow(post AdminPost) {
+templ AdminPostRow(post core.Blog) {
 	<tr id={ "post-row-" + post.ID } class="border-t border-white/10">
 		<td class="py-4">
-			<a href={ templ.SafeURL("/post/" + post.URL) } class="font-body text-aero-deep hover:text-aero-azure transition-colors">
+			<a href={ templ.SafeURL("/post/" + post.Title) } class="font-body text-aero-deep hover:text-aero-azure transition-colors">
 				{ post.Title }
 			</a>
 		</td>
 		<td class="py-4 text-center">
 			<button
-				hx-post={ fmt.Sprintf("/api/posts/%s/comments/toggle", post.ID) }
+				hx-post={ fmt.Sprintf("/admin/post/%s/comments/toggle", post.ID) }
 				hx-target={ "#post-row-" + post.ID }
+				hx-select={ "#post-row-" + post.ID }
 				hx-swap="outerHTML"
 				class={ "font-mono text-xs px-3 py-1 rounded-full transition-all cursor-pointer",
-					templ.KV("bg-emerald-500/20 text-emerald-800 border border-emerald-300/30", post.CommentsEnabled),
-					templ.KV("bg-red-500/20 text-red-800 border border-red-300/30", !post.CommentsEnabled) }
+					templ.KV("bg-emerald-500/20 text-emerald-800 border border-emerald-300/30", post.CommentsAvailable),
+					templ.KV("bg-red-500/20 text-red-800 border border-red-300/30", !post.CommentsAvailable) }
 			>
-				if post.CommentsEnabled {
-					on ({ fmt.Sprint(post.CommentCount) })
+				if post.CommentsAvailable {
+					on ({ strconv.Itoa(post.CommentsCount) })
 				} else {
 					off
 				}
@@ -118,7 +120,7 @@ templ AdminPostRow(post AdminPost) {
 			</div>
 			<div x-show={ fmt.Sprintf("confirmDelete === '%s'", post.ID) } x-cloak class="flex items-center justify-end gap-2">
 				<button
-					hx-delete={ "/api/posts/" + post.ID }
+					hx-delete={ "/admin/post/" + post.ID }
 					hx-target={ "#post-row-" + post.ID }
 					hx-swap="delete"
 					class="font-mono text-xs px-3 py-1 rounded-lg bg-red-500 text-white cursor-pointer"
@@ -137,9 +139,11 @@ templ AdminPostRow(post AdminPost) {
 }
 
 templ AdminMessage(message string, msgType string) {
-	<div class={ "mb-6 p-4 rounded-xl backdrop-blur border font-mono text-sm",
+	<div
+		class={ "mb-6 p-4 rounded-xl backdrop-blur border font-mono text-sm",
 		templ.KV("bg-emerald-500/20 border-emerald-300/30 text-emerald-900", msgType == "success"),
-		templ.KV("bg-red-500/20 border-red-300/30 text-red-900", msgType == "error") }>
+		templ.KV("bg-red-500/20 border-red-300/30 text-red-900", msgType == "error") }
+	>
 		{ message }
 	</div>
 }
