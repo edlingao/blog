@@ -16,9 +16,9 @@ import (
 	"github.com/edlingao/web"
 	"github.com/edlingao/web/template/layout"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/joho/godotenv/autoload"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	_ "github.com/joho/godotenv/autoload"
 )
 
 type Configurator struct {
@@ -106,5 +106,5 @@ func (configurator *Configurator) CLIAddUser(username, password, role string) er
 }
 
 func (configurator *Configurator) ServerStart() error {
-	return configurator.echo.Start(os.Getenv("PORT"))
+	return configurator.echo.Start(":" + os.Getenv("PORT"))
 }
