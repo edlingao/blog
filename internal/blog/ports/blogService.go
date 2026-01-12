@@ -15,4 +15,6 @@ type BlogService interface {
 	AdminDeleteCommentHandler(echo.Context) error
 	AdminDeletePostHandler(echo.Context) error
 	AdminToggleCommentsHandler(echo.Context) error
+	AdminNewPostHandler(echo.Context) error
+	AdminNewPostHandlerView(echo.Context) error
 }

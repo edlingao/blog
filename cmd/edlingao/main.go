@@ -29,4 +29,5 @@ func main() {
 	if arguments[0] == "adduser" {
 		configurator.CLIAddUser(arguments[1], arguments[2], arguments[3])
 	}
+
 }
