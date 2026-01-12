@@ -7,6 +7,7 @@ import "./about";
 import "./admin";
 import "./toc";
 import { CommentEvents } from "./state/commentEvents";
+import { NewPostForm } from "./state/newPost";
 
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
@@ -18,6 +19,7 @@ htmx.config.responseHandling = [
 ];
 
 CommentEvents();
+NewPostForm();
 
 document.addEventListener("DOMContentLoaded", () => {
   hljs.highlightAll();

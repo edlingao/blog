@@ -43,7 +43,7 @@ func NewBlog(title string) *Blog {
 }
 
 func (blog *Blog) SetTags(tags []string) {
-	blog.tags = tags
+	blog.tags = append(blog.tags, tags...)
 }
 
 func (blog *Blog) GetTags() []string {
@@ -74,6 +74,22 @@ func (blog *Blog) SetCommentAvailable(available bool) {
 
 func (blog *Blog) ToggleCommentsAvailability() {
 	blog.CommentsAvailable = !blog.CommentsAvailable
+}
+
+func (blog *Blog) SaveMDFile(data []byte) error {
+	mdFileDIR := "./assets/blogs/" + blog.Title + ".md"
+	mdFile, err := os.Create(mdFileDIR)
+	defer mdFile.Close()
+	if err != nil {
+		return errors.New("failed to create MD file: " + err.Error())
+	}
+
+	_, err = mdFile.Write(data)
+	if err != nil {
+		return errors.New("failed to write to MD file: " + err.Error())
+	}
+
+	return nil
 }
 
 // This step assumes that the markdown file already exists in the specified path.
@@ -140,6 +156,26 @@ func (blog *Blog) processMD(data []byte) ([]byte, map[string]any, error) {
 	}
 
 	metaData := meta.Get(context)
+	if blog.Title != "" {
+		metaData["title"] = blog.Title
+	}
+
+	if blog.Description != "" {
+		metaData["description"] = blog.Description
+	}
+
+	if blog.CommentsAvailable {
+		metaData["comments"] = blog.CommentsAvailable
+	}
+
+	if len(blog.tags) > 0 {
+		var tagsArr []string
+		for _, tag := range blog.tags {
+			tagsArr = append(tagsArr, tag)
+		}
+		metaData["tags"] = tagsArr
+	}
+
 	return buff.(*bytes.Buffer).Bytes(), metaData, nil
 }
 

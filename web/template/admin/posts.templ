@@ -14,30 +14,36 @@ type AdminPostsProps struct {
 
 templ Posts(props AdminPostsProps) {
 	@layout.Base(layout.BaseProps{Title: "Admin - Posts"}) {
-		<main class="max-w-6xl mx-auto px-6 py-12" x-data="adminPosts">
-			<div class="flex items-center justify-between mb-8">
+		<main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12" x-data="adminPosts">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
 				<div>
-					<h1 class="font-mono text-3xl text-aero-deep mb-2">admin/posts</h1>
+					<h1 class="font-mono text-2xl sm:text-3xl text-aero-deep mb-2">admin/posts</h1>
 					<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
 				</div>
-				<div class="flex items-center gap-4">
+				<div class="flex flex-wrap items-center gap-2 sm:gap-4">
 					<a
 						href="/logout"
-						class="px-4 py-2 rounded-xl font-mono text-sm text-red-600/70 bg-red-500/10 border border-red-300/30 hover:bg-red-500/20 hover:text-red-600 transition-all"
+						class="px-3 sm:px-4 py-2 rounded-xl font-mono text-xs sm:text-sm text-red-600/70 bg-red-500/10 border border-red-300/30 hover:bg-red-500/20 hover:text-red-600 transition-all"
 					>
 						logout
 					</a>
 					<a
 						href="/admin/comments"
-						class="px-4 py-2 rounded-xl font-mono text-sm text-aero-deep/70 bg-white/30 border border-white/40 hover:bg-white/50 transition-all"
+						class="px-3 sm:px-4 py-2 rounded-xl font-mono text-xs sm:text-sm text-aero-deep/70 bg-white/30 border border-white/40 hover:bg-white/50 transition-all"
 					>
-						manage_comments
+						comments
+					</a>
+					<a
+						href="/admin/post/new"
+						class="px-3 sm:px-4 py-2 rounded-xl font-mono text-xs sm:text-sm tracking-wider text-white bg-gradient-to-b from-aero-azure to-aero-aqua border border-aero-azure/50 shadow-lg shadow-aero-azure/30 hover:shadow-xl transition-all"
+					>
+						new_post
 					</a>
 					<button
 						hx-post="/api/posts/refresh"
 						hx-target="#refresh-message"
 						hx-swap="innerHTML"
-						class="px-4 py-2 rounded-xl font-mono text-sm tracking-wider text-white bg-gradient-to-b from-emerald-400 to-emerald-600 border border-emerald-400/50 shadow-lg shadow-emerald-500/30 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden"
+						class="px-3 sm:px-4 py-2 rounded-xl font-mono text-xs sm:text-sm tracking-wider text-white bg-gradient-to-b from-emerald-400 to-emerald-600 border border-emerald-400/50 shadow-lg shadow-emerald-500/30 hover:shadow-xl transition-all cursor-pointer relative overflow-hidden"
 						:disabled="refreshing"
 					>
 						<span class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></span>
@@ -54,23 +60,30 @@ templ Posts(props AdminPostsProps) {
 					@AdminMessage(props.Message, "success")
 				}
 			</div>
-			<div class="aero-glass backdrop-blur-xl bg-white/20 border border-white/40 rounded-3xl p-6 shadow-2xl shadow-black/10">
+			<div class="aero-glass backdrop-blur-xl bg-white/20 border border-white/40 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl shadow-black/10">
 				if len(props.Posts) > 0 {
-					<table class="admin-table w-full">
-						<thead>
-							<tr>
-								<th class="text-left">title</th>
-								<th class="text-center">comments</th>
-								<th class="text-center">created</th>
-								<th class="text-right">actions</th>
-							</tr>
-						</thead>
-						<tbody id="posts-table">
-							for _, post := range props.Posts {
-								@AdminPostRow(post)
-							}
-						</tbody>
-					</table>
+					<div class="hidden sm:block">
+						<table class="admin-table w-full">
+							<thead>
+								<tr>
+									<th class="text-left">title</th>
+									<th class="text-center">comments</th>
+									<th class="text-center">created</th>
+									<th class="text-right">actions</th>
+								</tr>
+							</thead>
+							<tbody id="posts-table">
+								for _, post := range props.Posts {
+									@AdminPostRow(post)
+								}
+							</tbody>
+						</table>
+					</div>
+					<div class="sm:hidden space-y-4" id="posts-cards">
+						for _, post := range props.Posts {
+							@AdminPostCard(post)
+						}
+					</div>
 				} else {
 					<div class="text-center py-12">
 						<p class="font-mono text-aero-deep/50">no_posts_found</p>
@@ -136,6 +149,58 @@ templ AdminPostRow(post core.Blog) {
 			</div>
 		</td>
 	</tr>
+}
+
+templ AdminPostCard(post core.Blog) {
+	<div id={ "post-card-" + post.ID } class="bg-white/10 backdrop-blur rounded-xl p-4 border border-white/20">
+		<a href={ templ.SafeURL("/post/" + post.Title) } class="font-body text-aero-deep hover:text-aero-azure transition-colors block mb-3">
+			{ post.Title }
+		</a>
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				<button
+					hx-post={ fmt.Sprintf("/admin/post/%s/comments/toggle", post.ID) }
+					hx-target={ "#post-card-" + post.ID }
+					hx-select={ "#post-card-" + post.ID }
+					hx-swap="outerHTML"
+					class={ "font-mono text-xs px-2 py-1 rounded-full transition-all cursor-pointer",
+						templ.KV("bg-emerald-500/20 text-emerald-800 border border-emerald-300/30", post.CommentsAvailable),
+						templ.KV("bg-red-500/20 text-red-800 border border-red-300/30", !post.CommentsAvailable) }
+				>
+					if post.CommentsAvailable {
+						on ({ strconv.Itoa(post.CommentsCount) })
+					} else {
+						off
+					}
+				</button>
+				<span class="font-mono text-xs text-aero-deep/50">{ post.CreatedAt }</span>
+			</div>
+			<div x-show={ fmt.Sprintf("confirmDelete !== '%s'", post.ID) }>
+				<button
+					@click={ fmt.Sprintf("askDelete('%s')", post.ID) }
+					class="font-mono text-xs text-red-600/70 hover:text-red-600 transition-colors cursor-pointer"
+				>
+					delete
+				</button>
+			</div>
+			<div x-show={ fmt.Sprintf("confirmDelete === '%s'", post.ID) } x-cloak class="flex items-center gap-2">
+				<button
+					hx-delete={ "/admin/post/" + post.ID }
+					hx-target={ "#post-card-" + post.ID }
+					hx-swap="delete"
+					class="font-mono text-xs px-2 py-1 rounded-lg bg-red-500 text-white cursor-pointer"
+				>
+					confirm
+				</button>
+				<button
+					@click="cancelDelete"
+					class="font-mono text-xs px-2 py-1 rounded-lg bg-white/50 text-aero-deep cursor-pointer"
+				>
+					cancel
+				</button>
+			</div>
+		</div>
+	</div>
 }
 
 templ AdminMessage(message string, msgType string) {

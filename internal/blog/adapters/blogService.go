@@ -3,6 +3,7 @@ package adapters
 import (
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/edlingao/internal/blog/core"
@@ -50,6 +51,8 @@ func NewBlogService(
 	protected.DELETE("/comment/:id", service.AdminDeleteCommentHandler)
 	protected.DELETE("/post/:id", service.AdminDeletePostHandler)
 	protected.POST("/post/:id/comments/toggle", service.AdminToggleCommentsHandler)
+	protected.POST("/post/publish", service.AdminNewPostHandler)
+	protected.GET("/post/new", service.AdminNewPostHandlerView)
 
 	go service.commentEventsService.Start()
 
@@ -324,4 +327,97 @@ func (service *BlogService) AdminToggleCommentsHandler(c echo.Context) error {
 		Message: "Post updated successfully",
 		Posts:   posts,
 	}), 200)
+}
+
+func (service *BlogService) AdminNewPostHandler(c echo.Context) error {
+	title := c.FormValue("title")
+	blogFile, err := c.FormFile("blog")
+	blogObj := core.NewBlog(title)
+
+	tags := c.FormValue("tags")
+	description := c.FormValue("description")
+	enableComments := c.FormValue("comments")
+
+	if tags != "" {
+		tags := strings.Split(tags, ",")
+		blogObj.SetTags(tags)
+	}
+
+	if description != "" {
+		blogObj.SetDescription(description)
+	}
+
+	blogObj.SetCommentAvailable(enableComments == "true")
+
+	if title == "" || err != nil {
+		errorMessage := "Title and blog file are required"
+		if err != nil {
+			errorMessage += ": " + err.Error()
+		}
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: errorMessage,
+		}), 400)
+	}
+
+	blogContentFile, err := blogFile.Open()
+	if err != nil {
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: "Error opening blog file: " + err.Error(),
+		}), 500)
+	}
+
+	blogFileData := make([]byte, blogFile.Size)
+	_, err = blogContentFile.Read(blogFileData)
+	if err != nil {
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: "Error reading blog file: " + err.Error(),
+		}), 500)
+	}
+
+	err = blogObj.SaveMDFile(blogFileData)
+	if err != nil {
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: "Error saving blog MD file: " + err.Error(),
+		}), 500)
+	}
+
+	err = blogObj.ProcessFileAndSave()
+	if err != nil {
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: "Error saving blog MD file: " + err.Error(),
+		}), 500)
+	}
+
+	blog, err := service.blogRepo.GetByTitle(title)
+	if err == nil && blog.ID != "" {
+		blogObj.ID = blog.ID
+		blog, err = service.blogRepo.Update(blogObj)
+		if err != nil {
+			return web.Render(c, admin.NewPost(admin.NewPostProps{
+				Message: "Error updating existing blog MD file: " + err.Error(),
+			}), 500)
+		}
+	} else {
+		blog, err = service.blogRepo.Save(blogObj)
+		if err != nil {
+			return web.Render(c, admin.NewPost(admin.NewPostProps{
+				Message: "Error saving blog MD file: " + err.Error(),
+			}), 500)
+		}
+	}
+
+	err = service.blogRepo.AddTagsToBlog(blog.ID, blogObj.GetTags())
+	if err != nil {
+		return web.Render(c, admin.NewPost(admin.NewPostProps{
+			Message: "Error saving post tags: " + err.Error(),
+		}), 500)
+	}
+
+	return web.Render(c, admin.NewPost(admin.NewPostProps{
+		Message: "Post created successfully",
+	}), 200)
+}
+
+func (service *BlogService) AdminNewPostHandlerView(c echo.Context) error {
+	return web.Render(c, admin.NewPost(admin.NewPostProps{}), 200)
 }

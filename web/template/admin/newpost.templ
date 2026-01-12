@@ -1,0 +1,205 @@
+package admin
+
+import "github.com/edlingao/web/template/layout"
+
+type NewPostProps struct {
+	Message string
+	Error   string
+}
+
+templ NewPost(props NewPostProps) {
+	@layout.Base(layout.BaseProps{Title: "Admin - New Post"}) {
+		<main class="max-w-xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+				<div>
+					<h1 class="font-mono text-2xl sm:text-3xl text-aero-deep mb-2">admin/new_post</h1>
+					<div class="w-16 h-0.5 bg-gradient-to-r from-aero-azure to-aero-aqua rounded-full"></div>
+				</div>
+				<a
+					href="/admin/posts"
+					class="px-4 py-2 rounded-lg font-mono text-sm text-aero-deep/70 bg-white/40 border border-white/60 hover:bg-white/60 transition-all shadow-sm w-fit"
+				>
+					← back_to_posts
+				</a>
+			</div>
+			<div id="form-message">
+				if props.Message != "" {
+					@AdminMessage(props.Message, "success")
+				}
+				if props.Error != "" {
+					@AdminMessage(props.Error, "error")
+				}
+			</div>
+			<div class="bg-gradient-to-b from-white/50 to-white/30 backdrop-blur-xl border border-white/60 rounded-2xl shadow-xl shadow-black/5 overflow-hidden" x-data="newPostForm">
+				<div class="h-1 bg-gradient-to-r from-aero-azure via-aero-aqua to-aero-azure"></div>
+				<form
+					hx-post="/admin/post/publish"
+					hx-target="#form-message"
+					hx-select="#form-message"
+					hx-swap="innerHTML"
+					hx-encoding="multipart/form-data"
+					class="p-6 sm:p-8 space-y-6"
+				>
+					<div
+						class="relative rounded-xl border-2 border-dashed transition-all cursor-pointer"
+						:class="dragOver ? 'border-aero-azure bg-aero-azure/10' : fileName ? 'border-emerald-400/60 bg-emerald-500/5' : 'border-aero-azure/40 bg-gradient-to-b from-aero-azure/5 to-transparent hover:border-aero-azure/60'"
+						@dragover.prevent="dragOver = true"
+						@dragleave.prevent="dragOver = false"
+						@drop.prevent="handleDrop($event)"
+						@click="!fileName && triggerFileInput()"
+					>
+						<input
+							type="file"
+							name="blog"
+							accept=".md"
+							required
+							class="hidden"
+							x-ref="fileInput"
+							@change="handleFileSelect($event)"
+						/>
+						<div x-show="!fileName" class="p-8 text-center">
+							<div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br from-aero-azure to-aero-aqua flex items-center justify-center shadow-lg shadow-aero-azure/30">
+								<svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path>
+								</svg>
+							</div>
+							<p class="font-mono text-base text-aero-deep mb-1">Drop your .md file here</p>
+							<p class="font-mono text-sm text-aero-deep/50">or click to browse files</p>
+						</div>
+						<div x-show="fileName" x-cloak class="p-6">
+							<div class="flex items-center gap-4">
+								<div class="w-12 h-12 shrink-0 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-md shadow-emerald-500/30">
+									<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+									</svg>
+								</div>
+								<div class="flex-1 min-w-0">
+									<p class="font-mono text-sm text-aero-deep truncate" x-text="fileName"></p>
+									<p class="font-mono text-xs text-emerald-600">Ready to publish</p>
+								</div>
+								<button
+									type="button"
+									@click.stop="clearFile()"
+									class="shrink-0 w-8 h-8 rounded-lg bg-red-500/10 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+								>
+									<svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+										<path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+									</svg>
+								</button>
+							</div>
+						</div>
+					</div>
+					<div>
+						<label for="title" class="block font-mono text-sm text-aero-deep/70 mb-2">
+							Post Title
+							<span class="text-aero-deep/40 text-xs ml-1">(auto-filled from filename)</span>
+						</label>
+						<input
+							type="text"
+							id="title"
+							name="title"
+							x-ref="titleInput"
+							required
+							class="w-full px-4 py-3 rounded-lg bg-white/60 border border-white/80 font-mono text-aero-deep placeholder:text-aero-deep/30 focus:outline-none focus:ring-2 focus:ring-aero-azure/50 focus:border-aero-azure/50 transition-all shadow-inner shadow-black/5"
+							placeholder="Enter post title..."
+						/>
+					</div>
+					<div x-show="fileName" x-cloak class="space-y-5 pt-2 border-t border-white/30">
+						<p class="font-mono text-xs text-aero-deep/50 uppercase tracking-wider pt-4">Metadata (from file)</p>
+						<div>
+							<label class="block font-mono text-sm text-aero-deep/70 mb-3">Tags</label>
+							<div class="flex flex-wrap gap-2">
+								@TagButton("books")
+								@TagButton("tutorials")
+								@TagButton("music")
+								@TagButton("projects")
+								@TagButton("art")
+								@TagButton("photography")
+								@TagButton("travel")
+								@TagButton("food")
+								@TagButton("technology")
+								@TagButton("gaming")
+								@TagButton("movies")
+							</div>
+							<p x-show="originalTags.length > 0" class="mt-3 font-mono text-xs text-aero-deep/40 flex items-center gap-1">
+								<svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+									<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path>
+								</svg>
+								Tags from file cannot be removed
+							</p>
+							<input type="hidden" name="tags" :value="metadata.tags.join(',')"/>
+						</div>
+						<div>
+							<label for="description" class="block font-mono text-sm text-aero-deep/70 mb-2">Description</label>
+							<textarea
+								id="description"
+								name="description"
+								x-model="metadata.description"
+								rows="2"
+								class="w-full px-4 py-3 rounded-lg bg-white/60 border border-white/80 font-mono text-sm text-aero-deep placeholder:text-aero-deep/30 focus:outline-none focus:ring-2 focus:ring-aero-azure/50 focus:border-aero-azure/50 transition-all shadow-inner shadow-black/5 resize-none"
+								placeholder="Brief description of the post..."
+							></textarea>
+						</div>
+						<div class="flex items-center justify-between">
+							<label for="comments-toggle" class="font-mono text-sm text-aero-deep/70">Enable Comments</label>
+							<button
+								type="button"
+								@click="metadata.comments = !metadata.comments"
+								:class="metadata.comments ? 'bg-emerald-500' : 'bg-gray-300'"
+								class="relative w-12 h-6 rounded-full transition-colors"
+							>
+								<span
+									:class="metadata.comments ? 'translate-x-6' : 'translate-x-1'"
+									class="absolute top-1 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform"
+								></span>
+							</button>
+							<input type="hidden" name="comments" :value="metadata.comments ? 'true' : 'false'"/>
+						</div>
+					</div>
+					<button
+						type="submit"
+						:disabled="submitting || !fileName"
+						class="w-full py-3 px-6 rounded-lg font-mono text-sm text-white bg-gradient-to-b from-aero-azure to-cyan-600 border border-aero-azure/50 shadow-lg shadow-aero-azure/30 hover:shadow-xl hover:from-cyan-500 hover:to-cyan-700 active:shadow-md transition-all relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+					>
+						<span class="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/25 to-transparent pointer-events-none"></span>
+						<span x-show="!submitting" class="relative flex items-center justify-center gap-2">
+							<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"></path>
+							</svg>
+							Publish Post
+						</span>
+						<span x-show="submitting" x-cloak class="relative flex items-center justify-center gap-2">
+							<svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							Uploading...
+						</span>
+					</button>
+				</form>
+			</div>
+		</main>
+	}
+}
+
+templ TagButton(tag string) {
+	<button
+		type="button"
+		@click={ "toggleTag('" + tag + "')" }
+		:class={ "originalTags.includes('" + tag + "') ? 'bg-aero-azure/80 text-white border-aero-azure cursor-not-allowed' : metadata.tags.includes('" + tag + "') ? 'bg-aero-azure text-white border-aero-azure shadow-md shadow-aero-azure/30' : 'bg-white/40 text-aero-deep/70 border-white/60 hover:bg-white/60'" }
+		:disabled={ "originalTags.includes('" + tag + "')" }
+		class="px-3 py-1.5 rounded-lg font-mono text-xs border transition-all flex items-center gap-1"
+	>
+		{ tag }
+		<svg
+			x-show={ "originalTags.includes('" + tag + "')" }
+			class="w-3 h-3"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			viewBox="0 0 24 24"
+		>
+			<path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path>
+		</svg>
+	</button>
+}
